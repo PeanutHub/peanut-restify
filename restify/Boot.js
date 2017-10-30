@@ -59,12 +59,11 @@ class Boot {
     this.settings = lodash.defaultsDeep(settings, defaultSettings); // Default Settings
 
     // Try to get from caller stack!
-    if (!this.settings.appappRootDir) {
+    if (!this.settings.appRootDir) {
       const serverFile = _getCallerFile(); // Point to server file
       const appRootDir = serverFile.substring(0, serverFile.lastIndexOf("/"));
-      this.settings.appappRootDir = appRootDir;
+      this.settings.appRootDir = appRootDir;
     }
-
 
     this.discoveredModels = [];
 
