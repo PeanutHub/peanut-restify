@@ -1,6 +1,7 @@
 const ExtensionBase = require('./../ExtensionBase');
 const restify = require('restify');
 const restifyValidation = require('node-restify-validation');
+const corsMiddleware = require('restify-cors-middleware');
 
 /**
  * Add Standards plugins like queryparser , and bodyparsers for restify
@@ -10,13 +11,19 @@ const restifyValidation = require('node-restify-validation');
  */
 class AddStandardPluginsExtension extends ExtensionBase {
 
-   /**
-    * Add Standard Plugin's
-    * @param {any} config Configuration Settings
-    * @memberof AddStandardPluginsExtension
-    */
+  /**
+   * Add Standard Plugin's
+   * @param {any} config Configuration Settings
+   * @memberof AddStandardPluginsExtension
+   */
   execute(config) {
-    
+
+    const cors = corsMiddleware({
+      preflightMaxAge: 5, //Optional
+      origins: ['*'],
+      allowHeaders: ['X-Api-Key']
+    })
+
     this.server.use(restify.plugins.bodyParser({
       mapParams: false
     }));
@@ -24,7 +31,9 @@ class AddStandardPluginsExtension extends ExtensionBase {
     this.server.use(restifyValidation.validationPlugin({
       errorsAsArray: false
     }));
-    this.server.use(restify.plugins.fullResponse());
+
+    this.server.pre(cors.preflight);
+    this.server.use(cors.actual);
   };
 
 }

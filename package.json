@@ -25,15 +25,15 @@
   "homepage": "https://github.com/PeanutHub/peanut-restify#readme",
   "dependencies": {
     "bunyan": "^1.8.12",
-    "dtrace-provider": "^0.8.5",
     "lodash": "^4.17.4",
     "mongoose": "^4.9.9",
     "mongoose-validators": "^0.1.0",
     "node-restify-validation": "^1.1.1",
-    "restify": "^6.2.3",
+    "restify": "^5.2.0",
     "restify-jwt": "git+https://github.com/PeanutHub/restify-jwt.git",
     "restify-router": "^0.4.2",
     "restify-swagger-jsdoc": "^1.1.2",
+    "restify-cors-middleware": "^1.0.1",
     "winston": "^2.3.1"
   },
   "devDependencies": {}
