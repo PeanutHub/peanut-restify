@@ -101,6 +101,8 @@ class Boot {
         this.info('[Boot finished ...]')
 
         app.emit('boot finished');
+        this.info('');
+        
         resolve(app);
       } catch (ex) {
         // Something goes wrong...
