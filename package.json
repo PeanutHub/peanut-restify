@@ -28,10 +28,10 @@
     "mongoose": "^4.9.9",
     "mongoose-validators": "^0.1.0",
     "node-restify-validation": "^1.1.1",
-    "restify": "^4.3.0",
+    "restify": "^6.2.3",
     "restify-jwt": "^0.4.0",
     "restify-router": "^0.4.2",
-    "restify-swagger-jsdoc": "^1.0.8",
+    "restify-swagger-jsdoc": "^1.1.2",
     "winston": "^2.3.1"
   },
   "devDependencies": {}
