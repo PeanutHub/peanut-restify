@@ -82,36 +82,34 @@ class Boot {
   /**
    * Initialize Booting Process
    * @param {any} app Application
+   * @param {(error,app)=>void} callback Callback function
    * @returns 
    * @memberof Boot
    */
-  start(app) {
-    return new Promise((resolve, rejected) => {
+  start(app, callback = () => {}) {
+    try {
+      app.emit('boot started');
 
-      try {
-        app.emit('boot started');
+      app.setSettings(this.settings); // Settings
+      this.app = app; // Application Server Wrapper
 
-        app.setSettings(this.settings); // Settings
-        this.app = app; // Application Server Wrapper
+      // Start Booting Process
+      this.info('');
+      this.info('[Boot started ...]');
+      this.discoverDecorators();
+      this.info('');
+      this.discoverExtensions();
+      this.info('');
+      this.info('[Boot finished ...]')
 
-        // Start Booting Process
-        this.info('');
-        this.info('[Boot started ...]');
-        this.discoverDecorators();
-        this.info('');
-        this.discoverExtensions();
-        this.info('');
-        this.info('[Boot finished ...]')
+      app.emit('boot finished');
+      this.info('');
 
-        app.emit('boot finished');
-        this.info('');
+      callback(null, app);
 
-        resolve(app);
-      } catch (ex) {
-        // Something goes wrong...
-        rejected(ex);
-      }
-    });
+    } catch (ex) {
+      callback(ex, null);
+    }
   }
 
   /**
@@ -236,7 +234,7 @@ class Boot {
 /**
  * Return Booting Process
  */
-module.exports = (app, settings) => {
+module.exports = (app, settings, callback) => {
 
   settings = (settings || {});
 
@@ -250,5 +248,5 @@ module.exports = (app, settings) => {
   }
 
   const boot = new Boot(settings);
-  return boot.start(app);
+  return boot.start(app, callback);
 };
