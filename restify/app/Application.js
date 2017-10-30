@@ -18,12 +18,22 @@ class App {
 
   /**
    * Emit Event
-   * @param {(string | symbol)} event Event Name
+   * @param {(string | symbol)} eventName Event Name
    * @param {...any[]} args Arguments
    * @memberof App
    */
-  emit(event, args) {
-    this.emitter.emit(event, args);
+  emit(eventName, args) {
+    this.emitter.emit(eventName, args);
+  }
+
+  /**
+   * Subscribe to Event
+   * @param {(string | symbol)} eventName Event Name
+   * @param {(...args: any[]) => void} callback Callback function when trigger specified event
+   * @memberof App
+   */
+  on(eventName, callback) {
+    this.emitter.on(eventName, callback);
   }
 
   /**
