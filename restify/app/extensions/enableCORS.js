@@ -15,7 +15,7 @@ class EnableCorsExtension extends ExtensionBase {
    * @memberof EnableCorsExtension
    */
   execute(config) {
-    const settings = lodash.cloneDeep(config, {
+    const settings = lodash.defaultsDeep(config, {
       origins: ['*'],
       allowHeaders: ['X-Api-Key', 'Access-Control-Allow-Origin', 'Authorization']
     });

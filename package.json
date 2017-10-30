@@ -1,6 +1,6 @@
 {
   "name": "peanut-restify",
-  "version": "1.1.21",
+  "version": "1.1.22",
   "description": "Restify boosted By Loopback 3 Style",
   "main": "index.js",
   "scripts": {
