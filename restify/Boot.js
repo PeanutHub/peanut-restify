@@ -53,17 +53,19 @@ class Boot {
       }
     });
 
-
-    // Try to get from caller stack!
-    const serverFile = _getCallerFile(); // Point to server file
-    const rootDir = serverFile.substring(0, serverFile.lastIndexOf("/"));
-    defaultSettings.rootDir = rootDir;
-
     // Configure some variables
-
-    defaultSettings.endpointsPath = `${defaultSettings.rootDir}/endpoints`;
+    defaultSettings.endpointsPath = `${defaultSettings.appRootDir}/endpoints`;
 
     this.settings = lodash.defaultsDeep(settings, defaultSettings); // Default Settings
+
+    // Try to get from caller stack!
+    if (!this.settings.appappRootDir) {
+      const serverFile = _getCallerFile(); // Point to server file
+      const appRootDir = serverFile.substring(0, serverFile.lastIndexOf("/"));
+      this.settings.appappRootDir = appRootDir;
+    }
+
+
     this.discoveredModels = [];
 
     // Add some logging function's
@@ -102,7 +104,7 @@ class Boot {
 
         app.emit('boot finished');
         this.info('');
-        
+
         resolve(app);
       } catch (ex) {
         // Something goes wrong...
@@ -191,7 +193,7 @@ class Boot {
    */
   configureDecorator(fullPath) {
     const decorator = require(fullPath);
-    decorator(this.app, this.app.getServer(), this.settings, this.settings.rootDir);
+    decorator(this.app, this.app.getServer(), this.settings, this.settings.appRootDir);
   }
 
   /**
@@ -211,7 +213,7 @@ class Boot {
       }
 
       // Create an instance Method
-      const extension = new ExtensionClass(this.app, this.app.getServer(), this.settings, this.settings.rootDir);
+      const extension = new ExtensionClass(this.app, this.app.getServer(), this.settings, this.settings.appRootDir);
 
       // Extend by Name
       const extensionName = extensionFile.replace(/.js/, '');
