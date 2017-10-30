@@ -1,0 +1,8 @@
+{
+  "debug": false,
+  "discoverEndpoints": true,
+  "endpointsPath": null,
+  "routePrefix": "",
+  "port": 4000,
+  "env": "DEV"
+}

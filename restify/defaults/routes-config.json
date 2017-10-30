@@ -1,0 +1,11 @@
+{
+  "exclude": [],
+  "include": [],
+  "name": "${endpoint}",
+  "auto_config": true,
+  "routes": {
+    "path": {
+      "prefix": "/${endpoint}"
+    }
+  }
+}
