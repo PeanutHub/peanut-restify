@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/PeanutHub/peanut-restify#readme",
   "dependencies": {
+    "bunyan": "^1.8.12",
+    "dtrace-provider": "^0.8.5",
     "lodash": "^4.17.4",
     "mongoose": "^4.9.9",
     "mongoose-validators": "^0.1.0",
