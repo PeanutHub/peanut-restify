@@ -54,8 +54,6 @@ class Boot {
     });
 
     // Configure some variables
-    defaultSettings.endpointsPath = `${defaultSettings.appRootDir}/endpoints`;
-
     this.settings = lodash.defaultsDeep(settings, defaultSettings); // Default Settings
 
     // Try to get from caller stack!
@@ -63,6 +61,10 @@ class Boot {
       const serverFile = _getCallerFile(); // Point to server file
       const appRootDir = serverFile.substring(0, serverFile.lastIndexOf("/"));
       this.settings.appRootDir = appRootDir;
+    }
+
+    if (!this.settings.endpointsPath) {
+      this.settings.endpointsPath = `${this.settings.appRootDir}/endpoints`;
     }
 
     this.discoveredModels = [];

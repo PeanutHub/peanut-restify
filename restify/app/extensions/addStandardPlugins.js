@@ -16,14 +16,15 @@ class AddStandardPluginsExtension extends ExtensionBase {
     * @memberof AddStandardPluginsExtension
     */
   execute(config) {
-    this.server.use(restify.bodyParser({
+    
+    this.server.use(restify.plugins.bodyParser({
       mapParams: false
     }));
-    this.server.use(restify.queryParser());
+    this.server.use(restify.plugins.queryParser());
     this.server.use(restifyValidation.validationPlugin({
       errorsAsArray: false
     }));
-    this.server.use(restify.fullResponse());
+    this.server.use(restify.plugins.fullResponse());
   };
 
 }
