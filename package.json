@@ -1,6 +1,6 @@
 {
   "name": "peanut-restify",
-  "version": "1.1.25",
+  "version": "1.1.27",
   "description": "Restify boosted By Loopback 3 Style",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/PeanutHub/peanut-restify#readme",
   "dependencies": {
-    "bunyan": "^1.8.12",
     "lodash": "^4.17.4",
     "mongoose": "^4.9.9",
     "mongoose-validators": "^0.1.0",

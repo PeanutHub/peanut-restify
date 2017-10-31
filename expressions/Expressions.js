@@ -25,3 +25,5 @@ class Expressions {
     }
   }
 }
+
+module.exports = Expressions;
