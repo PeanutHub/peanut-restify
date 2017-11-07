@@ -1,6 +1,6 @@
 const ExtensionBase = require('./../ExtensionBase');
 const restify = require('restify');
-const jwt = require('restify-jwt');
+const jwt = require('peanut-restify-jwt');
 const fileSystem = require('fs');
 const lodash = require('lodash');
 
