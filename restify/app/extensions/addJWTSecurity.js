@@ -2,6 +2,7 @@ const ExtensionBase = require('./../ExtensionBase');
 const restify = require('restify');
 const jwt = require('restify-jwt');
 const fileSystem = require('fs');
+const lodash = require('lodash');
 
 /**
  * Add JWT Security to restify
@@ -17,15 +18,21 @@ class AddJWTSecurityExtension extends ExtensionBase {
    * @memberof AddJWTSecurityExtension
    */
   execute(config) {
-    const app = this.app;
-    const publicKey = fileSystem.readFileSync(`${this.serverPath}/config/certs/falabella_rsa.pub`);
-    this.server.use(jwt({
-        secret: publicKey
-      })
+    const jwtConfig = lodash.defaultsDeep(config, {
+      publicKeyPath: null
+    });
+
+    if (!jwtConfig.publicKeyPath) {
+      throw new Error("PublicKeyPath for JWT Auth is not configured");
+    }
+
+    jwtConfig.secret = fileSystem.readFileSync(jwtConfig.publicKeyPath);
+
+    this.server.use(jwt(jwtConfig)
       .unless({
         custom: (req) => {
           const fullPath = req.route.method + " " + req.route.path;
-          const inWhiteList = app.getWhiteList().indexOf(fullPath) >= 0;
+          const inWhiteList = this.app.getWhiteList().indexOf(fullPath) >= 0;
           return inWhiteList;
         },
         path: [
