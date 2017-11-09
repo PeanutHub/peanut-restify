@@ -59,7 +59,8 @@ class Boot {
     // Try to get from caller stack!
     if (!this.settings.appRootDir) {
       const serverFile = _getCallerFile(); // Point to server file
-      const appRootDir = serverFile.substring(0, serverFile.lastIndexOf("/"));
+      const indexOfPathSeparator = serverFile.lastIndexOf("/") > 0 ? serverFile.lastIndexOf("/") : serverFile.lastIndexOf("\\");
+      const appRootDir =  serverFile.substring(0, indexOfPathSeparator);
       this.settings.appRootDir = appRootDir;
     }
 
