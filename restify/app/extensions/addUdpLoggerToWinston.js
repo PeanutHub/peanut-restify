@@ -30,7 +30,10 @@ class AddUdpLoggerToWinston extends ExtensionBase {
     config.env = this.app.getSettings().env;
 
     // Turn on debugs on default logger console transport
-    winston.add(UdpTransport, config);
+    const transport_name_to_check = 'peanut_udp_transport';
+    if (!winston.default.transports[transport_name_to_check]) {
+      winston.add(UdpTransport, config);
+    }
   };
 
 }
