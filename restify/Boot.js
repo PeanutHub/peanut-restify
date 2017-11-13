@@ -53,6 +53,9 @@ class Boot {
       }
     });
 
+    // process.env.PORT must have more precedence to work in azure AppServices
+    settings["port"] = process.env.PORT || process.env.NODE_PORT || settings["port"];
+
     // Configure some variables
     this.settings = lodash.defaultsDeep(settings, defaultSettings); // Default Settings
 
