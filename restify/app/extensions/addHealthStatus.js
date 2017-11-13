@@ -1,5 +1,6 @@
 const ExtensionBase = require('./../ExtensionBase');
 const lodash = require('lodash');
+const winston = require('winston');
 
 /**
  * Add health status for APIs
@@ -94,7 +95,10 @@ class addHealthStatusExtension extends ExtensionBase {
           profile: this.settings.env,
           name: info.name,
           version: info.version,
-          routePrefix: this.settings.routePrefix
+          routePrefix: this.settings.routePrefix,
+          logging: {
+            level: winston.level,
+          },
         }
       });
     });
