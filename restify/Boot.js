@@ -53,13 +53,17 @@ class Boot {
       }
     });
 
+    // process.env.PORT must have more precedence to work in azure AppServices
+    settings["port"] = process.env.PORT || process.env.NODE_PORT || settings["port"];
+
     // Configure some variables
     this.settings = lodash.defaultsDeep(settings, defaultSettings); // Default Settings
 
     // Try to get from caller stack!
     if (!this.settings.appRootDir) {
       const serverFile = _getCallerFile(); // Point to server file
-      const appRootDir = serverFile.substring(0, serverFile.lastIndexOf("/"));
+      const indexOfPathSeparator = serverFile.lastIndexOf("/") > 0 ? serverFile.lastIndexOf("/") : serverFile.lastIndexOf("\\");
+      const appRootDir =  serverFile.substring(0, indexOfPathSeparator);
       this.settings.appRootDir = appRootDir;
     }
 
