@@ -65,7 +65,12 @@ class EnableSocketListener extends ExtensionBase {
     //Subscribe to appname, appname:version and appname:latest channels
     this.redisClient.subscribe(`${this.appName}`, `${this.appName}:${this.appVersion}`, (err, count) => {
       if (err) {
-        throw err;
+        if (settings.muteErrors) {
+          logger.error('can\`t connect to socket for command instructions');
+          logger.debug(err);
+        } else {
+          throw err;
+        }
       }
     });
 
