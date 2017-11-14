@@ -1,8 +1,8 @@
 const ExtensionBase = require('./../ExtensionBase');
 const lodash = require('lodash');
 const winston = require('winston');
-const redisClient = require("ioredis");
-
+const RedisClient = require("ioredis");
+let CONNECTIONREFUSED_THROWED = false;
 /**
  * Enable command listener via Socket Pub/sub Provider (like redis, etc)
  * 
@@ -55,22 +55,42 @@ class EnableSocketListener extends ExtensionBase {
       throw new Error('The appVersion is not setted for socket listener');
     }
 
-    this.redisClient = new redisClient({
+
+    // Connect to a Redis Client
+    this.redisClient = new RedisClient({
+      showFriendlyErrorStack: true,
       port: settings.port,          // Redis port
       host: settings.host,   // Redis host
       family: 4,           // 4 (IPv4) or 6 (IPv6)
       db: 0
     });
 
+
     //Subscribe to appname, appname:version and appname:latest channels
     this.redisClient.subscribe(`${this.appName}`, `${this.appName}:${this.appVersion}`, (err, count) => {
       if (err) {
         if (settings.muteErrors) {
-          logger.error('can\`t connect to socket for command instructions');
-          logger.debug(err);
+          winston.error('can\`t connect to socket for command instructions');
+          winston.debug(err);
         } else {
           throw err;
         }
+      }
+    });
+
+    this.redisClient.on('error', (ex) => {
+      // CONNECTION REFUSED, THROW TOO MANY ERROR (Threads..) , soo
+      // recognize the error, and throw only one type error
+      if (ex.code === 'ECONNREFUSED') {
+        if (!CONNECTIONREFUSED_THROWED) {
+          winston.error('a connection error ocurred in the socket listener for command instructions (ECONNREFUSED)');
+          winston.debug(ex);
+        }
+        CONNECTIONREFUSED_THROWED = true;
+      } else {
+        // If not send the error to log central
+        winston.error('a socket command listener error has ocurred');
+        winston.debug(ex);
       }
     });
 

@@ -76,7 +76,6 @@ class PeanutUDPTransport {
 
   log(level, msg, meta, callback) {
     var meta = winston.clone(cycle.decycle(meta) || {});
-    var logEntry;
 
     callback = (callback || function () { });
 
@@ -84,7 +83,11 @@ class PeanutUDPTransport {
       return callback(null, true);
     }
 
-    logEntry = common.log({
+    if (!msg && level === 'debug') {
+      msg = 'debug details';
+    };
+
+    const logEntry = {
       level: level,
       message: msg,
       meta: {
@@ -92,12 +95,14 @@ class PeanutUDPTransport {
         app_version: this.app_version,
         app_environment: this.app_environment,
         server_name: this.server_name,
+        metadata: meta,
       },
       timestamp: this.timestamp,
       json: true
-    });
+    };
 
-    this.sendLog(logEntry, (err) => {
+
+    this.sendLog(common.log(logEntry), (err) => {
       this.emit('udp logged', !err);
 
       callback(err, !err);
