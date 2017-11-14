@@ -12,7 +12,7 @@ const winston = require('winston');
 class AddUdpLoggerToWinston extends ExtensionBase {
 
   /**
-   * Enable JWT Security for request's
+   * Enable UDP Logger for winston
    * @param {any} config Configuration Settings
    * @memberof AddUdpLoggerToWinston
    */

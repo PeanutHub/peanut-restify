@@ -244,7 +244,7 @@ class DiscoverEndpointsExtension extends ExtensionBase {
 
 
   /**
-   * Add Custom Content-types for others mime types
+   * Discover endpoints and his models and register into the controllers restify registry
    * @param {any} config Configuration Settings
    * @memberof DiscoverEndpointsExtension
    */

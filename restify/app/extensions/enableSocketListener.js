@@ -12,7 +12,7 @@ let CONNECTIONREFUSED_THROWED = false;
 class EnableSocketListener extends ExtensionBase {
 
   /**
-   * Enable Socket Interaction
+   * Enable Socket Interaction for commander pattern
    * @param {any} config Configuration Settings
    * @memberof EnableSocketListener
    */
@@ -123,6 +123,11 @@ class EnableSocketListener extends ExtensionBase {
         winston.level = 'info';
       });
     }
+
+    // Gracefully shutdown
+    this.app.on('application:shutdown', (arg) => {
+      this.redisClient.disconnect() 
+    });
   };
 }
 

@@ -56,6 +56,10 @@ class App {
     switch (name) {
       case "is-dev-mode":
         return this.getSettings().env == "DEV";;
+      case "is-prod-mode":
+        return this.getSettings().env == "PROD";;
+      case "is-test-mode":
+        return this.getSettings().env == "TEST";;
       case "family":
         return this.server.address().family;
       case "host":
@@ -110,6 +114,114 @@ class App {
         callback(this.server);
       });
   }
+
+  /**
+   * Shutdown Web server (gracefully) (emit application:shutdown event via Application befire kill)
+   * 
+   * @param {any} callback 
+   * @memberof App
+   */
+  close() {
+    this.emit('application:shutdown');
+    this.server.close();
+  }
+
+  /**
+   * Extension Interfaces (for simple access)
+   */
+
+  /**
+  * Add Custom Content-types for others mime types
+  * @param {any} config Configuration Settings
+  * @memberof AddCustomFormatterExtension
+  */
+  addCustomFormatters(config) { }
+
+  /**
+   * Add health status for the API (default: /health)
+   * @param {any} config Configuration Settings
+   * @memberof addHealthStatusExtension
+   */
+  addHealthStatus(config) { }
+
+  /**
+  * Enable JWT Security for request's
+  * @param {any} config Configuration Settings
+  * @memberof AddJWTSecurityExtension
+  */
+  addJWTSecurity(config) { }
+
+  /**
+   * Add Standard Plugin's (body parser, query parser and validation plugin)
+   * @param {any} config Configuration Settings
+   * @memberof AddStandardPluginsExtension
+   */
+  addStandardPlugins(config) { }
+
+  /**
+   * Activate the swagger UI
+   * @param {any} config Configuration Settings
+   * @returns 
+   * @memberof AddSwaggerDocsExtension
+   */
+  addSwaggerDocs(config) { }
+
+  /**
+   * Insert a URI registry in the whitelist table
+   * @param {any} config Configuration Settings
+   * @memberof AddToWhiteListExtension
+   */
+  addToWhiteList(config) { }
+
+  /**
+   * Enable UDP Logger for winston
+   * @param {any} config Configuration Settings
+   * @memberof AddUdpLoggerToWinston
+   */
+  addUdpLoggerToWinston(config) { }
+
+  /**
+   * Discover endpoints and his models and register into the controllers restify registry
+   * @param {any} config Configuration Settings
+   * @memberof DiscoverEndpointsExtension
+   */
+  discoverEndpoints(config) { }
+
+  /**
+   * Enable CORS
+   * @param {any} config Configuration Settings
+   * @memberof EnableCorsExtension
+   */
+  enableCORS(config) { }
+
+  /**
+   * Enable Socket Interaction for commander pattern
+   * @param {any} config Configuration Settings
+   * @memberof EnableSocketListener
+   */
+  enableSocketListener(config) { }
+
+  /**
+   * Get Boot Setting's
+   * @param {any} config Configuration Settings
+   * @returns Settings
+   * @memberof GetSettingsExtension
+   */
+  getSettings(config) { }
+
+  /**
+   * Get Whitelist Routes
+   * @param {any} config Configuration Settings
+   * @memberof GetWhiteListExtension
+   */
+  getWhiteList(config) { }
+
+  /**
+   * Add a static file route
+   * @param {any} config Configuration Settings
+   * @memberof staticFileExtension
+   */
+  staticFile(config) { }
 }
 
 let app;
