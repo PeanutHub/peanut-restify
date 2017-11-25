@@ -17,13 +17,18 @@ class EnableCorsExtension extends ExtensionBase {
   execute(config) {
     const settings = lodash.defaultsDeep(config, {
       origins: ['*'],
-      allowHeaders: ['X-Api-Key', 'Access-Control-Allow-Origin', 'Authorization']
+      allowedHeaders: []
+    });
+
+    const allowedHeaders = ['X-Api-Key', 'Access-Control-Allow-Origin', 'Authorization']
+    lodash.forEach(settings.allowedHeaders, (headerSupported) => {
+      allowedHeaders.push(headerSupported);
     });
 
     const cors = corsMiddleware({
       preflightMaxAge: 5, //Optional
       origins: settings.origins,
-      allowHeaders: settings.allowHeaders
+      allowedHeaders: allowedHeaders
     });
     this.server.pre(cors.preflight);
     this.server.use(cors.actual);
