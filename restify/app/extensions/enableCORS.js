@@ -28,7 +28,7 @@ class EnableCorsExtension extends ExtensionBase {
     const cors = corsMiddleware({
       preflightMaxAge: 5, //Optional
       origins: settings.origins,
-      allowedHeaders: allowedHeaders
+      allowHeaders: allowedHeaders
     });
     this.server.pre(cors.preflight);
     this.server.use(cors.actual);
