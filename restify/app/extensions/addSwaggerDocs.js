@@ -22,9 +22,10 @@ class AddSwaggerDocsExtension extends ExtensionBase {
       title: `${packageJSON.description} (${this.settings.env})`, // Page title (required) 
       version: packageJSON.version, // Server version (required) 
       server: this.server, // Restify server instance created with restify.createServer() 
-      path: '/docs/swagger', // Public url where the swagger page will be available 
-      apis: [`${this.settings.endpointsPath}/**/*.js`], // Path to the API docs 
-      forceSecure: (this.settings.env == "DEV" ? false : true) // force swagger-ui to use https protocol to load JSON file (optional, default: false) 
+      path: config.path || '/docs/swagger', // Public url where the swagger page will be available
+      apis: [`${this.settings.endpointsPath}/**/*.js`], // Path to the API docs
+      forceSecure: (this.settings.env == "DEV" ? false : true), // force swagger-ui to use https protocol to load JSON file (optional, default: false)
+      routePrefix: config.routePrefix || '', // route prefix to use in swagger http client
     };
     //https://github.com/Surnet/swagger-jsdoc/blob/master/docs/GETTING-STARTED.md
     swagger.createSwaggerPage(config);
