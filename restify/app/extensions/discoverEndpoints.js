@@ -4,6 +4,7 @@ const path = require('path');
 const lodash = require('lodash');
 const restifyRouter = require('restify-router');
 const mongoose = require('mongoose');
+const expr = require('./../../../expressions');
 
 /**
  * Add Custom Formatters For content-types
@@ -102,6 +103,10 @@ class DiscoverEndpointsExtension extends ExtensionBase {
           var options = Object.assign({}, route.options);
           var fullUri = `${routePrefix}${options.path}`;
           var tags = [];
+
+          expr.whenTrue(methodName === 'del', () => {
+            methodName = 'delete';
+          });
 
           // If the route is public, add to whitelist!
           if (options.public && this.app.addToWhiteList) {
