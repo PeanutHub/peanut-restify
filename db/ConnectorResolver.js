@@ -1,4 +1,5 @@
 const ConnectorBase = require('./ConnectorBase')
+const ConnectorClientBase = require('./ConnectorClientBase');
 const CONFIG = require('./../config');
 
 class ConnectorResolver {
@@ -21,7 +22,7 @@ class ConnectorResolver {
 
   /**
    * Get the Raw Connector implementation
-   * @returns {ConnectorBase} Connector Implementation
+   * @returns {ConnectorClientBase} Connector Implementation
    * @memberof ConnectorResolver
    */
   getConnection() {

@@ -30,8 +30,7 @@ class DocumentDB extends ConnectorBase {
 
   /**
    * Get the Connection for the connector
-   * 
-   * @returns 
+   * @returns {ConnectorClientBase} Connector Client Base
    * @memberof DocumentDB
    */
   getConnection() {
