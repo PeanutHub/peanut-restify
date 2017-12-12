@@ -44,6 +44,7 @@ class ChainnableQuery {
    */
   top(topCount) {
     _query.limit = topCount;
+    return this;
   }
 
   /**
@@ -51,7 +52,8 @@ class ChainnableQuery {
    * @param {Object} fields 
    */
   fields(fields) {
-    _query.project = fields;
+    _query.projection = fields;
+	return this;
   }
 
   /**
@@ -60,6 +62,7 @@ class ChainnableQuery {
    */
   orderBy(orderBy) {
     _query.sort = orderBy;
+	return this;
   }
 
   /**
