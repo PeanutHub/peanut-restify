@@ -47,7 +47,7 @@ class MongoDbClient extends ConnectorClientBase {
    * Get the native (mongodb client) for weird stuff
    */
   native() {
-    return init();
+    return this.init();
   }
 
   /**
