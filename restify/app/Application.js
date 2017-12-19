@@ -8,9 +8,9 @@ const events = require('events');
  */
 class App {
 
-  constructor() {
+  constructor(options) {
     this.emitter = new events.EventEmitter();
-    this.server = restify.createServer(this.settings);
+    this.server = restify.createServer(options);
     this.extensions = {};
     this.decorators = {};
     this.models = {};
@@ -71,7 +71,8 @@ class App {
       case "port":
         return this.server.address().port;
       case "url":
-        return `http://${this.get('host')}:${this.get('port')}`;
+        let scheme = this.server.address().port == 443 ? 'https' : 'http';
+        return `${scheme}://${this.get('host')}:${this.get('port')}`;
     }
   }
 
@@ -230,9 +231,9 @@ let app;
  * @returns {App} Application Wrapper
  * @memberof App
  */
-module.exports = () => {
+module.exports = (options) => {
   if (!app) {
-    app = new App();
+    app = new App(options);
   }
   return app;
 };
