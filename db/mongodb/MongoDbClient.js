@@ -100,7 +100,7 @@ class MongoDbClient extends ConnectorClientBase {
       .then((db) => {
         delete document._id;  // for clean step!
         return db
-          .collection(collectionName)
+          .collection(collection)
           .updateOneAsync({ '_id': new ObjectId(token) }, { '$set': document });
       });
   };
