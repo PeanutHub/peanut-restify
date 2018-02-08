@@ -22,7 +22,7 @@ class addPingEndpointExtension extends ExtensionBase {
 
     this.app.addToWhiteList(config);
     this.server.get({
-      path: this.config.route,
+      path: config.route,
     }, (req, res, next) => {
       res.send(200, 'pong');
     });
