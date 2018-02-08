@@ -6,7 +6,7 @@
  * PD: Today is option works only for ENVIRONMENT Variables
  */
 class ConfigurationClient {
-  constructor() {};
+  constructor() { };
 
   /**
    * Get Setting Value By Name
@@ -51,6 +51,15 @@ class ConfigurationClient {
       return setting;
     }
     return parseInt(setting);
+  }
+
+  /**
+   * Check if a setting name exist in the configuration
+   * @param {String} settingName Setting Name to check
+   * @returns {Boolean} existence
+   */
+  exists(settingName) {
+    return this.get(settingName, null) !== null;
   }
 }
 
