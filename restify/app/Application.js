@@ -223,6 +223,11 @@ class App {
    * @memberof staticFileExtension
    */
   staticFile(config) { }
+
+  /** 
+   * Add /ping endpoint for... maybe a loading test??
+  */
+  addPingEndpoint() { }
 }
 
 let app;
