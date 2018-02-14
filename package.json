@@ -29,7 +29,7 @@
     "mongoose": "^4.9.9",
     "mongoose-validators": "^0.1.0",
     "node-restify-validation": "^1.1.1",
-    "peanut-restify-jwt": "0.4.3",
+    "peanut-restify-jwt": "0.4.4",
     "restify": "^5.2.0",
     "restify-cors-middleware": "^1.0.1",
     "restify-router": "^0.4.2",
