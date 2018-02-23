@@ -82,68 +82,62 @@ class MongoDbClient extends ConnectorClientBase {
 
   /**
    * Insert a new Document in the mongoose schema
-   * @param {Object|Object[]} documents Document or documents to insert
+   * @param {Object} documents Document or documents to insert
    */
-  create(documents) {
+  create(document) {
     return new Promise((resolve, reject) => {
       this.init()
         .then((db) => {
-          let arrayToInsert = documents;
-          if (!Array.isArray(documents)) {
-            arrayToInsert = [documents];
-          }
-
-          const defers = [];
-          arrayToInsert.forEach((doc) => {
-            defers.push(new Promise((resolve, reject) => {
-              doc.save((error, replaced) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  resolve(replaced);
-                }
-              })
-            }));
-          });
-
-          Promise
-            .all(defers)
-            .then(resolve, reject);
+          document
+            .save((error, replaced) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(replaced);
+              }
+            })
         });
     })
   };
 
   /**
-  * Update Document By his Id
-  * @param {String} collection Collection Name
-  * @param {String} id Document Id
+  * Update Document
   * @param {Object} document Document to update
   */
-  updateById(collection, id, document) {
-    collection
-    const ObjectId = require('mongodb').ObjectId;
-    return this.init()
-      .then((db) => {
-        delete document._id;  // for clean step!
-        return db
-          .collection(collection)
-          .updateOneAsync({ '_id': id }, { '$set': document });
-      });
+  update(document) {
+    return new Promise((resolve, reject) => {
+      this.init()
+        .then((db) => {
+          document
+            .save((error, replaced) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(replaced);
+              }
+            })
+        });
+    })
   };
 
   /**
-  * Delete Document By his Id
-  * @param {String} collection Collection Name
-  * @param {String} token Token to delete
+  * Delete Document
+  * @param {String} document Document model
   */
-  deleteById(collection, token) {
-    const ObjectId = require('mongodb').ObjectId;
-    return this.init()
-      .then((db) => {
-        return db
-          .collection(collection)
-          .deleteOneAsync({ '_id': new ObjectId(token) });
-      });
+  delete(document) {
+    return new Promise((resolve, reject) => {
+      return this.init()
+        .then((db) => {
+          return document
+            .remove((error, removed) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(removed);
+              }
+            });
+        });
+    });
   };
 
   /**
