@@ -228,6 +228,11 @@ class App {
    * Add /ping endpoint for... maybe a loading test??
   */
   addPingEndpoint() { }
+
+  /** 
+   * Add database auto connection, for checking a connection in bootstrap
+  */
+ autoConnectToDb() { }
 }
 
 let app;
