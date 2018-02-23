@@ -21,8 +21,9 @@ class MongoDB extends ConnectorBase {
       require('mongodb');
       require('bluebird');
       require('odata-v4-mongodb');
+      require('mongoose');
     } catch (ex) {
-      logger.error(`you need to install 'Mongo DB Client' before you can use it (npm install --save bluebird mongodb@2.2.33 odata-v4-mongodb)`);
+      logger.error(`you need to install 'Mongo DB Client' before you can use it (npm install --save bluebird mongodb@2.2.33 odata-v4-mongodb mongoose)`);
     }
     return new MongoDbClient(this.connectionString);
   }

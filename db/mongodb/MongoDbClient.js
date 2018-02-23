@@ -2,8 +2,15 @@
 const expr = require('./../../expressions/Expressions');
 const ChainnableQuery = require('./ChainnableQuery');
 const ConnectorClientBase = require('./../ConnectorClientBase');
+const mongoose = require('mongoose');
 
 let mongoDbClient = null;
+
+/**
+ * Connect to the mongo DB
+ * @param {String} connectionString Connection String
+ * @returns {Promise<MongoClient>} Returns a MongoClient
+ */
 function _connect(connectionString) {
   return new Promise((resolve, reject) => {
     try {
@@ -17,6 +24,11 @@ function _connect(connectionString) {
             }
             // Resolve with the connection
             mongoDbClient = connection;
+
+            mongoose.Promise = _promise;
+            mongoose.connect(connectionString, {
+              useMongoClient: true,
+            });
             resolve(connection);
           });
       } else {
@@ -53,15 +65,14 @@ class MongoDbClient extends ConnectorClientBase {
   /**
    * Get Document Collection by his Token
    * @param {*} collection Collection Name
-   * @param {*} token Document Id
+   * @param {*} id Document Id
    */
-  getById(collection, token) {
-    const ObjectId = require('mongodb').ObjectId;
+  getById(collection, id) {
     return this.init()
       .then((db) => {
         return db
           .collection(collection)
-          .findAsync({ '_id': new ObjectId(token) })
+          .findAsync({ '_id': id })
           .then((cursor) => {
             return cursor
               .toArrayAsync();
@@ -70,30 +81,45 @@ class MongoDbClient extends ConnectorClientBase {
   };
 
   /**
-   * Insert a new Document in the target Collection
-   * @param {*} collection Collection Name
+   * Insert a new Document in the mongoose schema
    * @param {Object|Object[]} documents Document or documents to insert
    */
-  create(collection, documents) {
-    return this.init()
-      .then((db) => {
-        let arrayToInsert = documents;
-        if (!Array.isArray(documents)) {
-          arrayToInsert = [documents];
-        }
-        return db
-          .collection(collection)
-          .insertManyAsync(arrayToInsert);
-      });
+  create(documents) {
+    return new Promise((resolve, reject) => {
+      this.init()
+        .then((db) => {
+          let arrayToInsert = documents;
+          if (!Array.isArray(documents)) {
+            arrayToInsert = [documents];
+          }
+
+          const defers = [];
+          arrayToInsert.forEach((doc) => {
+            defers.push(new Promise((resolve, reject) => {
+              doc.save((error, replaced) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(replaced);
+                }
+              })
+            }));
+          });
+
+          Promise
+            .all(defers)
+            .then(resolve, reject);
+        });
+    })
   };
 
   /**
   * Update Document By his Id
   * @param {String} collection Collection Name
-  * @param {String} token Token
+  * @param {String} id Document Id
   * @param {Object} document Document to update
   */
-  updateById(collection, token, document) {
+  updateById(collection, id, document) {
     collection
     const ObjectId = require('mongodb').ObjectId;
     return this.init()
@@ -101,7 +127,7 @@ class MongoDbClient extends ConnectorClientBase {
         delete document._id;  // for clean step!
         return db
           .collection(collection)
-          .updateOneAsync({ '_id': new ObjectId(token) }, { '$set': document });
+          .updateOneAsync({ '_id': id }, { '$set': document });
       });
   };
 
