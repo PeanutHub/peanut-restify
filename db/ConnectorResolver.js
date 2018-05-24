@@ -5,7 +5,7 @@ const CONFIG = require('./../config');
 class ConnectorResolver {
 
   constructor(settings) {
-    this.connectorType = CONFIG.get("DATASOURCE_TYPE").toLowerCase();
+    this.connectorType = CONFIG.get('DATASOURCE_TYPE', 'dummydb').toLowerCase();
 
     const ConnectorClass = require(`./connectors/${this.connectorType}`);
     this.connector = new ConnectorClass(settings);

@@ -8,9 +8,6 @@ class MongoDB extends ConnectorBase {
 
   constructor(settings) {
     super(settings);
-
-    // Process the connection String
-    //this.connectionString = settings.connectionString;
   }
 
   /**
@@ -19,11 +16,10 @@ class MongoDB extends ConnectorBase {
   getDatasourceClient() {
     try {
       require('mongodb');
-      require('bluebird');
       require('odata-v4-mongodb');
       require('mongoose');
     } catch (ex) {
-      logger.error(`you need to install 'Mongo DB Client' before you can use it (npm install --save bluebird mongodb@2.2.33 odata-v4-mongodb mongoose@4.9.9)`);
+      logger.error(`you need to install 'Mongo DB Client' before you can use it (npm install --save mongodb@2.2.33 odata-v4-mongodb mongoose@4.9.9)`);
     }
     return new MongoDbClient(this.connectionString);
   }

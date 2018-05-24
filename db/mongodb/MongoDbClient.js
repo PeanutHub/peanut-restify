@@ -15,8 +15,7 @@ function _connect(connectionString) {
   return new Promise((resolve, reject) => {
     try {
       if (!mongoDbClient) {
-        const _promise = require('bluebird');
-        _promise.promisifyAll(require('mongodb'))
+        require('mongodb')
           .MongoClient
           .connect(connectionString, (err, connection) => {
             if (err) {
@@ -25,7 +24,7 @@ function _connect(connectionString) {
             // Resolve with the connection
             mongoDbClient = connection;
 
-            mongoose.Promise = _promise;
+           // mongoose.Promise = _promise;
             mongoose.connect(connectionString, {
               useMongoClient: true,
             });
