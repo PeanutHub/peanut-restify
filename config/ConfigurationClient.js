@@ -6,7 +6,7 @@
  * PD: Today is option works only for ENVIRONMENT Variables
  */
 class ConfigurationClient {
-  constructor() { };
+  constructor() {};
 
   /**
    * Get Setting Value By Name
@@ -32,7 +32,7 @@ class ConfigurationClient {
    */
   getBoolean(settingName, defaultValue) {
     var setting = this.get(settingName, defaultValue);
-    if (typeof defaultValue === 'boolean') {
+    if (typeof setting === 'boolean') {
       return setting;
     }
     return setting === 'true' || setting === '1';
@@ -47,7 +47,7 @@ class ConfigurationClient {
    */
   getNumber(settingName, defaultValue) {
     var setting = this.get(settingName, defaultValue);
-    if (typeof defaultValue === 'number') {
+    if (typeof setting === 'number') {
       return setting;
     }
     return parseInt(setting);
