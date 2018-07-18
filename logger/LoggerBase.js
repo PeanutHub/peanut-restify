@@ -3,6 +3,7 @@
 /**
  * Logger Base
  */
+let previousLevel = null;
 class LoggerBase {
 
   /**
@@ -26,6 +27,7 @@ class LoggerBase {
    * @param {('debug'|'info'|'none')} level level to set
    */
   setLevel(level) {
+    previousLevel = this.logger.level;
     this.logger.level = level;
   }
 
@@ -40,7 +42,7 @@ class LoggerBase {
    * Unmute logging and set level to Debug
    */
   unmute() {
-    this.setLevel(this.LEVELS.DEBUG);
+    this.setLevel(previousLevel || this.LEVELS.DEBUG);
   }
 
   /**

@@ -1,6 +1,7 @@
 const ExtensionBase = require('./../ExtensionBase');
 const lodash = require('lodash');
 const winston = require('winston');
+const expr = require('./../../../expressions');
 
 /**
  * Add health status for APIs
@@ -21,6 +22,15 @@ class addHealthStatusExtension extends ExtensionBase {
       packagePath: `${this.serverPath}/../package.json`
     });
 
+    // check if the package.json exists
+    try {
+      var info = require(config.packagePath);
+    } catch (ex) {
+      console.error('[addHealthStatus] the package json not exists in the path!');
+      console.debug(ex);
+      process.exit();
+    }
+
     this.app.addToWhiteList(this.config);
     this.server.get({
       path: this.config.route,
@@ -28,6 +38,19 @@ class addHealthStatusExtension extends ExtensionBase {
 
       this.getStatus()
         .then(function (status) {
+
+          let labels = config.labels;
+          if (typeof labels === 'function') {
+            labels = labels();
+          };
+
+          expr.whenTrue(labels, () => {
+            // merge with some additional data
+            status = lodash.defaultsDeep(status, {
+              labels: labels
+            });
+          });
+
           res.send(200, status);
           next();
         }, function (status) {
@@ -75,7 +98,10 @@ class addHealthStatusExtension extends ExtensionBase {
 
       Promise.all([
         this.getInfo()
-      ]).then(_resolve, _resolve);
+      ]).then(_resolve, (ex) => {
+        console.error(ex);
+        throw ex;
+      });
 
     });
   };
