@@ -69,7 +69,7 @@ class ExtensionBase {
         var isFile = fs
           .statSync(path.join(folderPath, file))
           .isFile();
-        return isFile && file.endsWith('.js')
+        return isFile && file.endsWith('.js') && !file.endsWith('.test.js')
       });
   }
 
