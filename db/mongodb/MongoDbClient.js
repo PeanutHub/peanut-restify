@@ -17,17 +17,13 @@ function _connect(connectionString) {
       if (!mongoDbClient) {
         require('mongodb')
           .MongoClient
-          .connect(connectionString, (err, connection) => {
-            if (err) {
-              return reject(err);
-            }
+          .connect(connectionString, { useNewUrlParser: true }, (err, connection) => {
+            if (err) { return reject(err); }
             // Resolve with the connection
             mongoDbClient = connection;
 
            // mongoose.Promise = _promise;
-            mongoose.connect(connectionString, {
-              useMongoClient: true,
-            });
+            mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true });
             resolve(connection);
           });
       } else {
