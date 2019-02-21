@@ -1,6 +1,5 @@
 const ExtensionBase = require('./../ExtensionBase');
 const restify = require('restify');
-const restifyValidation = require('node-restify-validation');
 
 /**
  * Add Standards plugins like queryparser , and bodyparsers for restify
@@ -20,10 +19,6 @@ class AddStandardPluginsExtension extends ExtensionBase {
       mapParams: false
     }));
     this.server.use(restify.plugins.queryParser());
-    this.server.use(restifyValidation.validationPlugin({
-      errorsAsArray: false
-    }));
-
   };
 
 }
