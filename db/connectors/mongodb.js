@@ -1,5 +1,4 @@
 const ConnectorBase = require('./../ConnectorBase');
-const CONFIG = require('./../../config');
 const logger = require('./../../logger');
 const MongoDbClient = require('./../mongodb/MongoDbClient');
 let _client = null;

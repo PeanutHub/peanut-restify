@@ -1,6 +1,7 @@
+const EventEmitter = require('events');
 const ChainnableQuery = require('./mongodb/ChainnableQuery');
 
-class ConnectorClientBase {
+class ConnectorClientBase extends EventEmitter{
   /**
      * Useful for check the connection before any request 
      */

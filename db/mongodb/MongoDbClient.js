@@ -1,17 +1,15 @@
 'use strict';
-const expr = require('./../../expressions/Expressions');
-const ChainnableQuery = require('./ChainnableQuery');
 const ConnectorClientBase = require('./../ConnectorClientBase');
 const mongoose = require('mongoose');
 
-let mongoDbClient = null;
+let mongoDbClient
 
 /**
  * Connect to the mongo DB
  * @param {String} connectionString Connection String
  * @returns {Promise<MongoClient>} Returns a MongoClient
  */
-function _connect(connectionString) {
+function _connect(connectionString, mongoDbClientInstance) {
   return new Promise((resolve, reject) => {
     try {
       if (!mongoDbClient) {
@@ -22,9 +20,12 @@ function _connect(connectionString) {
             // Resolve with the connection
             mongoDbClient = connection;
 
-           // mongoose.Promise = _promise;
-            mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true });
-            resolve(connection);
+            mongoose.connection.on('disconnected', () => mongoDbClientInstance.emit('connection:disconnected'))
+            mongoose.connection.on('reconnected', () => mongoDbClientInstance.emit('connection:reconnected'))
+            mongoose.connection.on('connected', () => mongoDbClientInstance.emit('connection:connected'))
+
+            mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true })
+              .then(() => resolve(connection))
           });
       } else {
         resolve(mongoDbClient);
@@ -44,18 +45,15 @@ class MongoDbClient extends ConnectorClientBase {
 
     // Call inmediately to connect mongoose
     this.init()
-      .then(() => {
-        // Do Nothing
-      }, (err) => {
-        console.error(err);
-      });
+      .then(() => { return null })
+      .catch(console.error);
   }
 
   /**
    * Useful for check the connection before any request 
    */
   init() {
-    return _connect(this.connectionString);
+    return _connect(this.connectionString, this);
   }
 
   /**
