@@ -1,14 +1,36 @@
-'use strict';
-const restify = require('restify');
-const events = require('events');
+"use strict";
+const restify = require("restify");
+const events = require("events");
+const expr = require("./../../expressions");
+const AbstractError = require("peanut-restify/errors/AbstractError");
 
 /**
  * Application Wrapper
  * @class App
  */
 class App {
-
   constructor(options) {
+    expr.whenTrue(!options, () => {
+      options = {};
+    });
+
+    expr.whenTrue(!options.formatters, () => {
+      options.formatters = {};
+    });
+
+    options.formatters["application/json"] = (req, res, body) => {
+      if (body && body.jse_cause instanceof AbstractError) {
+        body = body.jse_cause;
+      } else if (Buffer.isBuffer(body)) {
+        body = body.toString("base64");
+      }
+
+      const data = JSON.stringify(body);
+      res.setHeader("Content-Length", Buffer.byteLength(data));
+
+      return data;
+    };
+
     this.emitter = new events.EventEmitter();
     this.server = restify.createServer(options);
     this.extensions = {};
@@ -37,14 +59,14 @@ class App {
   }
 
   /**
-   * Get value of something in the Core App , like some settings or maybe 
+   * Get value of something in the Core App , like some settings or maybe
    * if a extension has been called!
    * @param {String} name Name of the setting to retrieve
    * @returns {Object} Setting Value
    * @memberof App
    */
   get(name) {
-    const extensionPrefix = 'extension-';
+    const extensionPrefix = "extension-";
 
     // Ask for a Extension Use??
     if (name.startsWith(extensionPrefix)) {
@@ -55,24 +77,24 @@ class App {
 
     switch (name) {
       case "is-dev-mode":
-        return this.getSettings().env == "DEV";;
+        return this.getSettings().env == "DEV";
       case "is-prod-mode":
-        return this.getSettings().env == "PROD";;
+        return this.getSettings().env == "PROD";
       case "is-test-mode":
-        return this.getSettings().env == "TEST";;
+        return this.getSettings().env == "TEST";
       case "family":
         return this.server.address().family;
       case "host":
         let url = this.server.address().address;
         if (url === "::") {
-          url = "localhost"
+          url = "localhost";
         }
         return url;
       case "port":
         return this.server.address().port;
       case "url":
-        let scheme = this.server.address().port == 443 ? 'https' : 'http';
-        return `${scheme}://${this.get('host')}:${this.get('port')}`;
+        const scheme = this.server.address().port == 443 ? "https" : "http";
+        return `${scheme}://${this.get("host")}:${this.get("port")}`;
     }
   }
 
@@ -105,25 +127,24 @@ class App {
 
   /**
    * Start Web server
-   * 
-   * @param {any} callback 
+   *
+   * @param {any} callback
    * @memberof App
    */
   listen(callback) {
-    this.server
-      .listen(this.settings.port, () => {
-        callback(this.server);
-      });
+    this.server.listen(this.settings.port, () => {
+      callback(this.server);
+    });
   }
 
   /**
    * Shutdown Web server (gracefully) (emit application:shutdown event via Application befire kill)
-   * 
-   * @param {any} callback 
+   *
+   * @param {any} callback
    * @memberof App
    */
   close() {
-    this.emit('application:shutdown');
+    this.emit("application:shutdown");
     this.server.close();
   }
 
@@ -132,75 +153,75 @@ class App {
    */
 
   /**
-  * Add Custom Content-types for others mime types
-  * @param {any} config Configuration Settings
-  * @memberof AddCustomFormatterExtension
-  */
-  addCustomFormatters(config) { }
+   * Add Custom Content-types for others mime types
+   * @param {any} config Configuration Settings
+   * @memberof AddCustomFormatterExtension
+   */
+  addCustomFormatters(config) {}
 
   /**
    * Add health status for the API (default: /health)
    * @param {any} config Configuration Settings
    * @memberof addHealthStatusExtension
    */
-  addHealthStatus(config) { }
+  addHealthStatus(config) {}
 
   /**
-  * Enable JWT Security for request's
-  * @param {any} config Configuration Settings
-  * @memberof AddJWTSecurityExtension
-  */
-  addJWTSecurity(config) { }
+   * Enable JWT Security for request's
+   * @param {any} config Configuration Settings
+   * @memberof AddJWTSecurityExtension
+   */
+  addJWTSecurity(config) {}
 
   /**
    * Add Standard Plugin's (body parser, query parser and validation plugin)
    * @param {any} config Configuration Settings
    * @memberof AddStandardPluginsExtension
    */
-  addStandardPlugins(config) { }
+  addStandardPlugins(config) {}
 
   /**
    * Activate the swagger UI
    * @param {any} config Configuration Settings
-   * @returns 
+   * @returns
    * @memberof AddSwaggerDocsExtension
    */
-  addSwaggerDocs(config) { }
+  addSwaggerDocs(config) {}
 
   /**
    * Insert a URI registry in the whitelist table
    * @param {any} config Configuration Settings
    * @memberof AddToWhiteListExtension
    */
-  addToWhiteList(config) { }
+  addToWhiteList(config) {}
 
   /**
    * Enable UDP Logger for winston
    * @param {any} config Configuration Settings
    * @memberof AddUdpLoggerToWinston
    */
-  addUdpLoggerToWinston(config) { }
+  addUdpLoggerToWinston(config) {}
 
   /**
    * Discover endpoints and his models and register into the controllers restify registry
    * @param {any} config Configuration Settings
    * @memberof DiscoverEndpointsExtension
    */
-  discoverEndpoints(config) { }
+  discoverEndpoints(config) {}
 
   /**
    * Enable CORS
    * @param {any} config Configuration Settings
    * @memberof EnableCorsExtension
    */
-  enableCORS(config) { }
+  enableCORS(config) {}
 
   /**
    * Enable Socket Interaction for commander pattern
    * @param {any} config Configuration Settings
    * @memberof EnableSocketListener
    */
-  enableSocketListener(config) { }
+  enableSocketListener(config) {}
 
   /**
    * Get Boot Setting's
@@ -208,31 +229,31 @@ class App {
    * @returns Settings
    * @memberof GetSettingsExtension
    */
-  getSettings(config) { }
+  getSettings(config) {}
 
   /**
    * Get Whitelist Routes
    * @param {any} config Configuration Settings
    * @memberof GetWhiteListExtension
    */
-  getWhiteList(config) { }
+  getWhiteList(config) {}
 
   /**
    * Add a static file route
    * @param {any} config Configuration Settings
    * @memberof staticFileExtension
    */
-  staticFile(config) { }
+  staticFile(config) {}
 
-  /** 
+  /**
    * Add /ping endpoint for... maybe a loading test??
-  */
-  addPingEndpoint() { }
+   */
+  addPingEndpoint() {}
 
-  /** 
+  /**
    * Add database auto connection, for checking a connection in bootstrap
-  */
- autoConnectToDb() { }
+   */
+  autoConnectToDb() {}
 }
 
 let app;
@@ -241,7 +262,7 @@ let app;
  * @returns {App} Application Wrapper
  * @memberof App
  */
-module.exports = (options) => {
+module.exports = options => {
   if (!app) {
     app = new App(options);
   }
