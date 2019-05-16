@@ -1,5 +1,6 @@
 const logger = require('../../../logger');
 const ExtensionBase = require('./../ExtensionBase');
+
 /**
  * Add Custom Transport to logger
  * @class AddCustomFormatterExtension
@@ -12,8 +13,9 @@ class AddLoggerTransport extends ExtensionBase {
    * @param {any} config Configuration Settings
    * @memberof AddLoggerTransport
    */
-  execute(getTransportFn) {
-    logger.addTransport(getTransportFn());
+  execute(callback) {
+		const winston = require('winston')
+    logger.addTransport(callback(winston));
   };
 
 }

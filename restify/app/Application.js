@@ -197,9 +197,15 @@ class App {
 
   /**
    * Add Logger Transport
-   * @param {function} getTransportFn Function that returns a transport
+   * @param {function} callback Function that returns a transport
    */
-  addLoggerTransport(getTransportFn) {}
+  addLoggerTransport(callback) {}
+
+  /**
+   * Add File Logger Transport
+   * @param {options} options Add file transport parameter options
+   */
+  addFileLoggerTransport(options) {}
 
   /**
    * Discover endpoints and his models and register into the controllers restify registry
