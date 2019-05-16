@@ -1,6 +1,6 @@
 {
   "name": "peanut-restify",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Restify boosted By Loopback 3 Style",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "restify": "^7.7.0",
     "restify-cors-middleware": "^1.1.1",
     "restify-router": "^0.4.2",
-    "winston": "^2.3.1"
+    "winston": "3.2.1"
   },
   "devDependencies": {}
 }

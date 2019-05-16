@@ -196,11 +196,16 @@ class App {
   addToWhiteList(config) {}
 
   /**
-   * Enable UDP Logger for winston
-   * @param {any} config Configuration Settings
-   * @memberof AddUdpLoggerToWinston
+   * Add Logger Transport
+   * @param {function} callback Function that returns a transport
    */
-  addUdpLoggerToWinston(config) {}
+  addLoggerTransport(callback) {}
+
+  /**
+   * Add File Logger Transport
+   * @param {options} options Add file transport parameter options
+   */
+  addFileLoggerTransport(options) {}
 
   /**
    * Discover endpoints and his models and register into the controllers restify registry
