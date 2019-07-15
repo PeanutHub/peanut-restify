@@ -2,7 +2,7 @@
 const restify = require("restify");
 const events = require("events");
 const expr = require("./../../expressions");
-const AbstractError = require("peanut-restify/errors/AbstractError");
+const AbstractError = require("./../../errors/AbstractError");
 
 /**
  * Application Wrapper
