@@ -1,6 +1,6 @@
 const expr = require('../../../expressions')
 const ExtensionBase = require('./../ExtensionBase');
-const connection = require('./../../../db')
+const connectorResolver = require('./../../../db')
 
 /**
  * Add database auto connection, for checking a connection in bootstrap
@@ -20,18 +20,18 @@ class AutoConnectToDbExtension extends ExtensionBase {
       config.onConnectionChanged = (arg) => null
     })
 
-    const conn = connection.getConnection();
     const { app } = this;
+    const connection = connectorResolver.getConnection(app);
 
-    conn.on('connection:reconnected', () => {
+    connection.on('connection:reconnected', () => {
       config.onConnectionChanged('reconnected')
       app.emit('connection:reconnected')
     })
-    conn.on('connection:connected', () => {
+    connection.on('connection:connected', () => {
       config.onConnectionChanged('connected')
       app.emit('connection:connected')
     })
-    conn.on('connection:disconnected', () => {
+    connection.on('connection:disconnected', () => {
       config.onConnectionChanged('disconnected')
       app.emit('connection:disconnected')
     })

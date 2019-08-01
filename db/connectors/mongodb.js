@@ -12,7 +12,7 @@ class MongoDB extends ConnectorBase {
   /**
    * Get Datasource client
    */
-  getDatasourceClient() {
+  getDatasourceClient(app) {
     try {
       require('mongodb');
       require('odata-v4-mongodb');
@@ -20,7 +20,7 @@ class MongoDB extends ConnectorBase {
     } catch (ex) {
       logger.error(`you need to install 'Mongo DB Client' before you can use it (npm install --save mongodb@3 odata-v4-mongodb mongoose@5)`);
     }
-    return new MongoDbClient(this.connectionString);
+    return new MongoDbClient(this.connectionString, app);
   }
 
   /**
@@ -28,9 +28,9 @@ class MongoDB extends ConnectorBase {
    * @returns {ConnectorClientBase} Connector Client Base
    * @memberof DocumentDB
    */
-  getConnection() {
+  getConnection(app) {
     if (!_client) {
-      const mongoFacadeClient = this.getDatasourceClient();
+      const mongoFacadeClient = this.getDatasourceClient(app);
       _client = mongoFacadeClient;
     }
 

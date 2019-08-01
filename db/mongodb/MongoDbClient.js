@@ -2,58 +2,75 @@
 const ConnectorClientBase = require('./../ConnectorClientBase');
 const mongoose = require('mongoose');
 
-let mongoDbClient
-
-/**
- * Connect to the mongo DB
- * @param {String} connectionString Connection String
- * @returns {Promise<MongoClient>} Returns a MongoClient
- */
-function _connect(connectionString, mongoDbClientInstance) {
-  return new Promise((resolve, reject) => {
-    try {
-      if (!mongoDbClient) {
-        require('mongodb')
-          .MongoClient
-          .connect(connectionString, { useNewUrlParser: true }, (err, connection) => {
-            if (err) { return reject(err); }
-            // Resolve with the connection
-            mongoDbClient = connection;
-
-            mongoose.connection.on('disconnected', () => mongoDbClientInstance.emit('connection:disconnected'))
-            mongoose.connection.on('reconnected', () => mongoDbClientInstance.emit('connection:reconnected'))
-            mongoose.connection.on('connected', () => mongoDbClientInstance.emit('connection:connected'))
-
-            mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true })
-              .then(() => resolve(connection))
-          });
-      } else {
-        resolve(mongoDbClient);
-      }
-
-    } catch (ex) {
-      reject(ex);
-    }
-  })
-}
-
 class MongoDbClient extends ConnectorClientBase {
-
-  constructor(connectionString) {
+  constructor(connectionString, app) {
     super();
     this.connectionString = connectionString;
+    this.connections = [];
 
     // Call inmediately to connect mongoose
     this.init()
-      .then(() => { return null })
+      .then(() => {
+        this.connections.forEach(conn => {
+          app.on("application:shutdown", async (cb) => { 
+            await conn.close();
+            cb();
+          })
+        })
+      })
       .catch(console.error);
+  }
+
+
+  /**
+   * Connect to the mongo DB
+   * @param {String} connectionString Connection String
+   * @returns {Promise<MongoClient>} Returns a MongoClient
+   */
+  _connect(connectionString) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!this.getConnections().length > 0) {
+          require('mongodb')
+            .MongoClient
+            .connect(connectionString, { useNewUrlParser: true })
+            .then(connection => {
+              // Resolve with the connection
+              this.registerConnection(connection);
+    
+              mongoose.connection.on('disconnected', () => this.emit('connection:disconnected'))
+              mongoose.connection.on('reconnected', () => this.emit('connection:reconnected'))
+              mongoose.connection.on('connected', () => this.emit('connection:connected'))
+              
+              return mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true })
+            })
+            .then(mongooseConnection => {
+              this.registerConnection(mongooseConnection.connection);
+              resolve();
+            })
+            .catch(reject)
+        } else {
+          resolve();
+        }
+      } catch (ex) {
+        reject(ex);
+      }
+    })
+  }
+
+  getConnections() {
+    return this.connections
+  }
+
+  registerConnection(connection) {
+    this.connections.push(connection)
   }
 
   /**
    * Useful for check the connection before any request 
    */
   init() {
-    return _connect(this.connectionString, this);
+    return this._connect(this.connectionString, this);
   }
 
   /**

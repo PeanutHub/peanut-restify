@@ -1,6 +1,7 @@
 "use strict";
 const restify = require("restify");
 const events = require("events");
+const exitHook = require('async-exit-hook');
 const expr = require("./../../expressions");
 const AbstractError = require("./../../errors/AbstractError");
 
@@ -139,12 +140,10 @@ class App {
 
   /**
    * Shutdown Web server (gracefully) (emit application:shutdown event via Application befire kill)
-   *
-   * @param {any} callback
+   * 
    * @memberof App
    */
   close() {
-    this.emit("application:shutdown");
     this.server.close();
   }
 
@@ -271,5 +270,26 @@ module.exports = options => {
   if (!app) {
     app = new App(options);
   }
+
+  exitHook(callback => {
+    let applicationReceiveCallbackCount;
+    const eventName = "application:shutdown";
+    const listenerCount  = app.emitter.listenerCount(eventName);
+
+    if (listenerCount === 0) {
+      callback();
+    } else {
+      applicationReceiveCallbackCount = 0;
+      const customCallback = () => {
+        applicationReceiveCallbackCount++;
+        if (applicationReceiveCallbackCount === listenerCount) {
+          callback();
+        }
+      }
+      app.emit(eventName, customCallback);
+    }
+
+  });
+
   return app;
 };

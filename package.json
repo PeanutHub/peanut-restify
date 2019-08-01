@@ -24,8 +24,9 @@
   },
   "homepage": "https://github.com/PeanutHub/peanut-restify#readme",
   "dependencies": {
+    "async-exit-hook": "^2.0.1",
     "ioredis": "^3.2.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "mongoose": "5.4.14",
     "peanut-restify-jwt": "0.4.7",
     "restify": "^7.7.0",
