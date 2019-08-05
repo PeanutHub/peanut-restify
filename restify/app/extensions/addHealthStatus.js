@@ -24,40 +24,36 @@ class addHealthStatusExtension extends ExtensionBase {
 
     // check if the package.json exists
     try {
-      var info = require(config.packagePath);
-    } catch (ex) {
+      require(config.packagePath);
+    } catch (exception) {
       console.error('[addHealthStatus] the package json not exists in the path!');
-      console.debug(ex);
-      process.exit();
+      console.debug(exception);
+      throw exception;
     }
 
     this.app.addToWhiteList(this.config);
-    this.server.get({
-      path: this.config.route,
-    }, (req, res, next) => {
+    this.server.get(
+      {path: this.config.route},
+      (req, res, next) => {
+        this.getStatus()
+          .then(status => {
+            let labels = config.labels;
+            if (typeof labels === 'function') {
+              labels = labels();
+            };
 
-      this.getStatus()
-        .then(function (status) {
-
-          let labels = config.labels;
-          if (typeof labels === 'function') {
-            labels = labels();
-          };
-
-          expr.whenTrue(labels, () => {
-            // merge with some additional data
-            status = lodash.defaultsDeep(status, {
-              labels: labels
+            expr.whenTrue(labels, () => {
+              // merge with some additional data
+              status = lodash.defaultsDeep(status, { labels });
             });
+
+            res.send(200, status);
+            next();
+          })
+          .catch(error => {
+            res.send(200, error);
+            next();
           });
-
-          res.send(200, status);
-          next();
-        }, function (status) {
-          res.send(200, status);
-          next();
-        });
-
     });
   };
 
@@ -68,14 +64,12 @@ class addHealthStatusExtension extends ExtensionBase {
    * @memberof addHealthStatusExtension
    */
   formatTime(seconds) {
-    function pad(s) {
-      return (s < 10 ? '0' : '') + s;
-    }
-    var hours = Math.floor(seconds / (60 * 60));
-    var minutes = Math.floor(seconds % (60 * 60) / 60);
-    var seconds = Math.floor(seconds % 60);
+    const pad = s => (s < 10 ? '0' : '') + s;
+    const hours = Math.floor(seconds / (60 * 60));
+    const mins = Math.floor(seconds % (60 * 60) / 60);
+    const secs = Math.floor(seconds % 60);
 
-    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+    return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
   }
 
   /**
@@ -85,24 +79,20 @@ class addHealthStatusExtension extends ExtensionBase {
    */
   getStatus() {
     return new Promise((resolve, reject) => {
-      var status = {
+      let status = {
         status: "UP",
-        up_time: this.formatTime(process.uptime())
-      };
-      var _resolve = function (resolves) {
-        resolves.forEach(function (fragment) {
-          status[fragment.name] = fragment.values;
-        }, this);
-        resolve(status);
+        up_time: this.formatTime(process.uptime()),
       };
 
-      Promise.all([
-        this.getInfo()
-      ]).then(_resolve, (ex) => {
-        console.error(ex);
-        throw ex;
-      });
-
+      this.getInfo()
+        .then(info => {
+          status[info.name] = info.values;
+          resolve(status);
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
     });
   };
 
@@ -112,7 +102,7 @@ class addHealthStatusExtension extends ExtensionBase {
    * @memberof addHealthStatusExtension
    */
   getInfo() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const info = require(this.config.packagePath);
 
       resolve({
