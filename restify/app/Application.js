@@ -37,6 +37,7 @@ class App {
     this.extensions = {};
     this.decorators = {};
     this.models = {};
+    this.ready = false;
   }
 
   /**
@@ -134,13 +135,21 @@ class App {
    */
   listen(callback) {
     this.server.listen(this.settings.port, () => {
+      this.ready = true;
       callback(this.server);
     });
   }
 
+  isReady() {
+    return this.ready;
+  }
+
+  setReady() {
+    this.ready = true;
+  }
+
   /**
-   * Shutdown Web server (gracefully) (emit application:shutdown event via Application befire kill)
-   * 
+   * Shutdown Web server 
    * @memberof App
    */
   close() {
@@ -164,6 +173,13 @@ class App {
    * @memberof addHealthStatusExtension
    */
   addHealthStatus(config) {}
+
+  /**
+   * Add readines prove for the API (default: /ready)
+   * @param {any} config Configuration Settings
+   * @memberof addHealthStatusExtension
+   */
+  addReadinesProve(config) {}
 
   /**
    * Enable JWT Security for request's
@@ -271,6 +287,10 @@ module.exports = options => {
     app = new App(options);
   }
 
+  /**
+   * Exit hook to trigger gracefull shutdown
+   * @memberof mainmodule
+   */
   exitHook(callback => {
     let applicationReceiveCallbackCount;
     const eventName = "application:shutdown";
@@ -283,12 +303,12 @@ module.exports = options => {
       const customCallback = () => {
         applicationReceiveCallbackCount++;
         if (applicationReceiveCallbackCount === listenerCount) {
+          app.close();
           callback();
         }
       }
       app.emit(eventName, customCallback);
     }
-
   });
 
   return app;
