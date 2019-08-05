@@ -7,18 +7,7 @@ class MongoDbClient extends ConnectorClientBase {
     super();
     this.connectionString = connectionString;
     this.connections = [];
-
-    // Call inmediately to connect mongoose
-    this.init()
-      .then(() => {
-        this.connections.forEach(conn => {
-          app.on("application:shutdown", async (cb) => { 
-            await conn.close();
-            cb();
-          })
-        })
-      })
-      .catch(console.error);
+    this.app = app;
   }
 
 
@@ -70,14 +59,29 @@ class MongoDbClient extends ConnectorClientBase {
    * Useful for check the connection before any request 
    */
   init() {
-    return this._connect(this.connectionString, this);
+    return new Promise((res, rej) => {
+      this._connect(this.connectionString, this)
+        .then(() => {
+          this.connections.forEach(conn => {
+            this.app.on("application:shutdown", async (cb) => { 
+              await conn.close();
+              cb();
+            })
+          })
+          res(this.connections);
+        })
+        .catch(error => {
+          this.app.setReady(false);
+          rej(error);
+        });
+    })
   }
 
   /**
    * Get the native (mongodb client) for weird stuff
    */
   native() {
-    return this.init();
+    return this.connections[0];
   }
 }
 

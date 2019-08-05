@@ -17,10 +17,12 @@ class MongoDB extends ConnectorBase {
       require('mongodb');
       require('odata-v4-mongodb');
       require('mongoose');
-    } catch (ex) {
+      
+      return new MongoDbClient(this.connectionString, app);
+    } catch (error) {
       logger.error(`you need to install 'Mongo DB Client' before you can use it (npm install --save mongodb@3 odata-v4-mongodb mongoose@5)`);
+      throw error
     }
-    return new MongoDbClient(this.connectionString, app);
   }
 
   /**

@@ -1,6 +1,4 @@
 const ExtensionBase = require('./../ExtensionBase');
-const lodash = require('lodash');
-const winston = require('winston');
 
 /**
  * Add health status for APIs

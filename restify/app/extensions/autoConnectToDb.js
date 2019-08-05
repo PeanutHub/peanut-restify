@@ -1,3 +1,4 @@
+const logger = require('../../../logger');
 const expr = require('../../../expressions')
 const ExtensionBase = require('./../ExtensionBase');
 const connectorResolver = require('./../../../db')
@@ -22,6 +23,12 @@ class AutoConnectToDbExtension extends ExtensionBase {
 
     const { app } = this;
     const connection = connectorResolver.getConnection(app);
+    connection.init()
+      .then(() => logger.info('DB connected'))
+      .catch(error => {
+        logger.error('Error connecting to DB', error);
+        process.emit('SIGTERM');
+      })
 
     connection.on('connection:reconnected', () => {
       config.onConnectionChanged('reconnected')
