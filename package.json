@@ -1,6 +1,6 @@
 {
   "name": "peanut-restify",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Restify boosted By Loopback 3 Style",
   "main": "index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "ioredis": "^3.2.1",
     "lodash": "^4.17.15",
     "mongoose": "5.4.14",
-    "peanut-restify-jwt": "0.4.8",
+    "peanut-restify-jwt": "0.4.9",
     "restify": "^7.7.0",
     "restify-cors-middleware": "^1.1.1",
     "restify-router": "^0.4.2",
