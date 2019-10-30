@@ -1,7 +1,7 @@
-const ExtensionBase = require('./../ExtensionBase');
-const lodash = require('lodash');
-const winston = require('winston');
-const expr = require('./../../../expressions');
+const ExtensionBase = require("./../ExtensionBase");
+const lodash = require("lodash");
+const winston = require("winston");
+const expr = require("./../../../expressions");
 
 /**
  * Add health status for APIs
@@ -9,7 +9,6 @@ const expr = require('./../../../expressions');
  * @extends {ExtensionBase}
  */
 class addHealthStatusExtension extends ExtensionBase {
-
   /**
    * Add health status for the API (default: /health)
    * @param {any} config Configuration Settings
@@ -19,6 +18,7 @@ class addHealthStatusExtension extends ExtensionBase {
     this.config = lodash.defaultsDeep(config, {
       route: "/health",
       method: "GET",
+      public: true,
       packagePath: `${this.serverPath}/../package.json`
     });
 
@@ -26,36 +26,34 @@ class addHealthStatusExtension extends ExtensionBase {
     try {
       require(config.packagePath);
     } catch (exception) {
-      console.error('[addHealthStatus] the package json not exists in the path!');
+      console.error("[addHealthStatus] the package json not exists in the path!");
       console.debug(exception);
       throw exception;
     }
 
-    this.app.addToWhiteList(this.config);
-    this.server.get(
-      {path: this.config.route},
-      (req, res, next) => {
-        this.getStatus()
-          .then(status => {
-            let labels = config.labels;
-            if (typeof labels === 'function') {
-              labels = labels();
-            };
+    this.app.addRouteOptions(this.config);
+    this.server.get({ path: this.config.route }, (req, res, next) => {
+      this.getStatus()
+        .then(status => {
+          let labels = config.labels;
+          if (typeof labels === "function") {
+            labels = labels();
+          }
 
-            expr.whenTrue(labels, () => {
-              // merge with some additional data
-              status = lodash.defaultsDeep(status, { labels });
-            });
-
-            res.send(200, status);
-            next();
-          })
-          .catch(error => {
-            res.send(200, error);
-            next();
+          expr.whenTrue(labels, () => {
+            // merge with some additional data
+            status = lodash.defaultsDeep(status, { labels });
           });
+
+          res.send(200, status);
+          next();
+        })
+        .catch(error => {
+          res.send(200, error);
+          next();
+        });
     });
-  };
+  }
 
   /**
    * Format to semantic time
@@ -64,24 +62,24 @@ class addHealthStatusExtension extends ExtensionBase {
    * @memberof addHealthStatusExtension
    */
   formatTime(seconds) {
-    const pad = s => (s < 10 ? '0' : '') + s;
+    const pad = s => (s < 10 ? "0" : "") + s;
     const hours = Math.floor(seconds / (60 * 60));
-    const mins = Math.floor(seconds % (60 * 60) / 60);
+    const mins = Math.floor((seconds % (60 * 60)) / 60);
     const secs = Math.floor(seconds % 60);
 
-    return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+    return pad(hours) + ":" + pad(mins) + ":" + pad(secs);
   }
 
   /**
    * Get status for each important part for the system
-   * @returns 
+   * @returns
    * @memberof addHealthStatusExtension
    */
   getStatus() {
     return new Promise((resolve, reject) => {
-      let status = {
+      const status = {
         status: "UP",
-        up_time: this.formatTime(process.uptime()),
+        up_time: this.formatTime(process.uptime())
       };
 
       this.getInfo()
@@ -94,10 +92,10 @@ class addHealthStatusExtension extends ExtensionBase {
           reject(error);
         });
     });
-  };
+  }
 
   /**
-   * Get information about the environment 
+   * Get information about the environment
    * @returns Environment Information
    * @memberof addHealthStatusExtension
    */
@@ -113,12 +111,12 @@ class addHealthStatusExtension extends ExtensionBase {
           version: info.version,
           routePrefix: this.settings.routePrefix,
           logging: {
-            level: winston.level,
-          },
+            level: winston.level
+          }
         }
       });
     });
-  };
+  }
 }
 
 module.exports = addHealthStatusExtension;

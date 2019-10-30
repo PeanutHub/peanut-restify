@@ -1,6 +1,5 @@
-'use strict';
-const ConnectorClientBase = require('./../ConnectorClientBase');
-const mongoose = require('mongoose');
+const ConnectorClientBase = require("./../ConnectorClientBase");
+const mongoose = require("mongoose");
 
 class MongoDbClient extends ConnectorClientBase {
   constructor(connectionString, app) {
@@ -9,7 +8,6 @@ class MongoDbClient extends ConnectorClientBase {
     this.connections = [];
     this.app = app;
   }
-
 
   /**
    * Connect to the mongo DB
@@ -20,61 +18,60 @@ class MongoDbClient extends ConnectorClientBase {
     return new Promise((resolve, reject) => {
       try {
         if (!this.getConnections().length > 0) {
-          require('mongodb')
-            .MongoClient
-            .connect(connectionString, { useNewUrlParser: true })
+          require("mongodb")
+            .MongoClient.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true })
             .then(connection => {
               // Resolve with the connection
               this.registerConnection(connection);
-    
-              mongoose.connection.on('disconnected', () => this.emit('connection:disconnected'))
-              mongoose.connection.on('reconnected', () => this.emit('connection:reconnected'))
-              mongoose.connection.on('connected', () => this.emit('connection:connected'))
-              
-              return mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true })
+
+              mongoose.connection.on("disconnected", () => this.emit("connection:disconnected"));
+              mongoose.connection.on("reconnected", () => this.emit("connection:reconnected"));
+              mongoose.connection.on("connected", () => this.emit("connection:connected"));
+
+              return mongoose.connect(connectionString, { useNewUrlParser: true, useCreateIndex: true });
             })
             .then(mongooseConnection => {
               this.registerConnection(mongooseConnection.connection);
               resolve();
             })
-            .catch(reject)
+            .catch(reject);
         } else {
           resolve();
         }
       } catch (ex) {
         reject(ex);
       }
-    })
+    });
   }
 
   getConnections() {
-    return this.connections
+    return this.connections;
   }
 
   registerConnection(connection) {
-    this.connections.push(connection)
+    this.connections.push(connection);
   }
 
   /**
-   * Useful for check the connection before any request 
+   * Useful for check the connection before any request
    */
   init() {
     return new Promise((res, rej) => {
       this._connect(this.connectionString, this)
         .then(() => {
           this.connections.forEach(conn => {
-            this.app.on("application:shutdown", async (cb) => { 
+            this.app.on("application:shutdown", async cb => {
               await conn.close();
               cb();
-            })
-          })
+            });
+          });
           res(this.connections);
         })
         .catch(error => {
           this.app.setReady(false);
           rej(error);
         });
-    })
+    });
   }
 
   /**

@@ -1,7 +1,6 @@
-"use strict";
 const restify = require("restify");
 const events = require("events");
-const exitHook = require('async-exit-hook');
+const exitHook = require("async-exit-hook");
 const expr = require("./../../expressions");
 const AbstractError = require("./../../errors/AbstractError");
 
@@ -25,7 +24,6 @@ class App {
       } else if (Buffer.isBuffer(body)) {
         body = body.toString("base64");
       }
-
       const data = JSON.stringify(body);
       res.setHeader("Content-Length", Buffer.byteLength(data));
 
@@ -149,7 +147,7 @@ class App {
   }
 
   /**
-   * Shutdown Web server 
+   * Shutdown Web server
    * @memberof App
    */
   close() {
@@ -204,11 +202,11 @@ class App {
   addSwaggerDocs(config) {}
 
   /**
-   * Insert a URI registry in the whitelist table
+   * Add Route Options in the configuration storage
    * @param {any} config Configuration Settings
-   * @memberof AddToWhiteListExtension
+   * @memberof AddRouteOptionsExtension
    */
-  addToWhiteList(config) {}
+  addRouteOptions(config) {}
 
   /**
    * Add Logger Transport
@@ -294,7 +292,7 @@ module.exports = options => {
   exitHook(callback => {
     let applicationReceiveCallbackCount;
     const eventName = "application:shutdown";
-    const listenerCount  = app.emitter.listenerCount(eventName);
+    const listenerCount = app.emitter.listenerCount(eventName);
 
     if (listenerCount === 0) {
       callback();
@@ -306,7 +304,7 @@ module.exports = options => {
           app.close();
           callback();
         }
-      }
+      };
       app.emit(eventName, customCallback);
     }
   });

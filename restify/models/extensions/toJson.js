@@ -1,15 +1,14 @@
-const ExtensionBase = require('./../ExtensionBase');
+const ExtensionBase = require("./../ExtensionBase");
 
 /**
- * Support for whitelist Operations
- * 
- * @class AddToWhiteListExtension
+ * Support for ToJson Format
+ *
+ * @class ToJsonExtension
  * @extends {ExtensionBase}
  */
 class ToJsonExtension extends ExtensionBase {
-
   /**
-   * Remove _id attribute 
+   * Remove _id attribute
    * @param {any} config Configuration Settings
    * @param {any} model Model instance
    * @memberof ToJsonExtension
@@ -18,8 +17,7 @@ class ToJsonExtension extends ExtensionBase {
     var object = model.toObject();
     delete object._id;
     return object;
-  };
-
+  }
 }
 
 module.exports = ToJsonExtension;

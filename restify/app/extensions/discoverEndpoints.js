@@ -1,10 +1,10 @@
-const ExtensionBase = require('./../ExtensionBase');
-const fs = require('fs');
-const path = require('path');
-const lodash = require('lodash');
-const restifyRouter = require('restify-router');
-const mongoose = require('mongoose');
-const expr = require('./../../../expressions');
+const ExtensionBase = require("./../ExtensionBase");
+const fs = require("fs");
+const path = require("path");
+const lodash = require("lodash");
+const restifyRouter = require("restify-router");
+const mongoose = require("mongoose");
+const expr = require("./../../../expressions");
 
 /**
  * Add Custom Formatters For content-types
@@ -12,7 +12,6 @@ const expr = require('./../../../expressions');
  * @extends {ExtensionBase}
  */
 class DiscoverEndpointsExtension extends ExtensionBase {
-
   /**
    * Creates an instance of ExtensionBase.
    * @param {any} app Application instance
@@ -28,7 +27,7 @@ class DiscoverEndpointsExtension extends ExtensionBase {
 
   /**
    * Discover Endpoints: Get all folders inside the endpoints path and
-   * get the routes.json for configuration, if not present skip the auto-config for 
+   * get the routes.json for configuration, if not present skip the auto-config for
    * the specific folder, and go on the next folder an repeat process
    * @memberof Boot
    */
@@ -38,12 +37,10 @@ class DiscoverEndpointsExtension extends ExtensionBase {
     const endpoints = this.getPaths(path);
     this.info(`* Discovering Endpoints...(${endpoints.length} founds)`);
 
-    endpoints
-      .forEach((endpoint) => {
-        this.configureEndpoint(path, endpoint);
-      });
+    endpoints.forEach(endpoint => {
+      this.configureEndpoint(path, endpoint);
+    });
   }
-
 
   /**
    * From the routes.json configure and load all routes of the endpoint
@@ -53,7 +50,7 @@ class DiscoverEndpointsExtension extends ExtensionBase {
    * @memberof Boot
    */
   configureEndpoint(entryPoint, endpoint, parentConfig) {
-    const parentEndpoint = (parentConfig ? parentConfig.name + " -> " : "");
+    const parentEndpoint = parentConfig ? parentConfig.name + " -> " : "";
     const fullPath = path.join(entryPoint, endpoint);
     const paths = {
       config: `${fullPath}/routes.json`, // Configuration File
@@ -61,19 +58,18 @@ class DiscoverEndpointsExtension extends ExtensionBase {
       models: `${fullPath}/models` // Models to Load
     };
 
-    this.info('');
+    this.info("");
     this.info(`  - Configuring: [${parentEndpoint}${endpoint}] from routes.json`);
 
-    var defaultConfiguration = require('./../../defaults/routes-config.json');
+    const defaultConfiguration = require("./../../defaults/routes-config.json");
     defaultConfiguration.name = endpoint; // Set default name to endpoint
     defaultConfiguration.routes.path.prefix = `/${endpoint}`; // Set the default prefix to endpoint!
 
     if (fs.existsSync(paths.config)) {
-
       // Get routes.json and all routes to Load
-      var routesToLoad = this.getFiles(paths.routes);
-      var config = lodash.defaultsDeep(require(paths.config), defaultConfiguration);
-      var routePrefix = config.routes.path.prefix;
+      const routesToLoad = this.getFiles(paths.routes);
+      const config = lodash.defaultsDeep(require(paths.config), defaultConfiguration);
+      let routePrefix = config.routes.path.prefix;
 
       // If has parent route config, add the prefix to route!
       if (parentConfig && parentConfig.routes.path.prefix) {
@@ -81,45 +77,76 @@ class DiscoverEndpointsExtension extends ExtensionBase {
       }
 
       // Configuring the endpoint in the server
-      var router = new restifyRouter.Router();
-      routesToLoad.forEach((routePath) => {
+      const router = new restifyRouter.Router();
+      routesToLoad.forEach(routePath => {
         try {
-          var route = require(`${paths.routes}/${routePath}`);
+          const route = require(`${paths.routes}/${routePath}`);
           route(router, routePrefix);
         } catch (ex) {
-          this.debug(`Failed to load route ${routePath} from ${endpoint} endpoint.`)
+          this.debug(`Failed to load route ${routePath} from ${endpoint} endpoint.`);
           throw ex;
         }
       });
 
       // Add Public routes to server
-      Object.keys(router.routes).forEach((methodName) => {
+      Object.keys(router.routes).forEach(methodName => {
         // Get list of handlers per method's
         const method = router.routes[methodName];
 
         // For each handler
-        method.forEach((route) => {
-          // Check for the specific route configuration
-          var options = Object.assign({}, route.options);
-          var fullUri = `${routePrefix}${options.path}`;
-          var tags = [];
-
-          expr.whenTrue(methodName === 'del', () => {
-            methodName = 'delete';
+        method.forEach(route => {
+          expr.whenTrue(methodName === "del", () => {
+            methodName = "delete";
           });
 
-          // If the route is public, add to whitelist!
-          if (options.public && this.app.addToWhiteList) {
-            // Add to whitelist if the extension exists!
-            this.app.addToWhiteList({
-              method: methodName,
-              route: fullUri
+          // Check for the specific route configuration
+          methodName = methodName.toUpperCase();
+          const options = Object.assign({}, route.options);
+          const fullUri = `${routePrefix}${options.path}`;
+          const tags = [];
+
+          // If the route has options (except path one), put in a custom configuration route store
+          const additionalOptions = Object.assign({}, route.options);
+          delete additionalOptions.path;
+          if (Object.keys(additionalOptions).length > 0 && this.app.addRouteOptions) {
+            // Add to options store if the extension exists!
+            const opts = Object.assign(
+              {
+                method: methodName,
+                prefix: routePrefix,
+                route: fullUri,
+                public: false
+              },
+              route.options
+            );
+
+            // Check Client Ids
+            expr.whenTrue(opts.allowedClientIds && typeof opts.allowedClientIds == "string", () => {
+              opts.allowedClientIds = [opts.allowedClientIds];
+
+              expr.whenTrue(opts.allowedClientIds && opts.allowedClientIds.length === 0, () => {
+                opts.allowedClientIds = null;
+              });
             });
-            tags.push('public');
+
+            // Check Roles
+            expr.whenTrue(opts.allowedRoles && typeof opts.allowedRoles == "string", () => {
+              opts.allowedRoles = [opts.allowedRoles];
+
+              expr.whenTrue(opts.allowedRoles && opts.allowedRoles.length === 0, () => {
+                opts.allowedRoles = null;
+              });
+            });
+
+            this.app.addRouteOptions(opts);
+            tags.push("custom");
+            if (opts.public) {
+              tags.push("public");
+            }
           }
 
           // Show some info...
-          const tagLine = tags.length > 0 ? `[${tags.join(',')}]` : '';
+          const tagLine = tags.length > 0 ? `[${tags.join(", ")}]` : "";
           this.info(`     Registering ${methodName.toUpperCase()} at uri ${fullUri} ${tagLine}`);
         });
       });
@@ -129,9 +156,9 @@ class DiscoverEndpointsExtension extends ExtensionBase {
 
       // Add models to list of models to Load later!
       if (fs.existsSync(paths.models)) {
-        this.getFiles(paths.models).forEach((modelName) => {
+        this.getFiles(paths.models).forEach(modelName => {
           this.discoveredModels.push({
-            name: modelName.replace(/.js/, ''),
+            name: modelName.replace(/.js/, ""),
             path: path.join(paths.models, modelName)
           });
         });
@@ -139,7 +166,6 @@ class DiscoverEndpointsExtension extends ExtensionBase {
 
       // Iteration over includes routes
       if (config.routes.include.length > 0) {
-
         let includedPaths = config.routes.include;
         const includeFullPath = path.join(entryPoint, endpoint);
         // Include all??
@@ -149,18 +175,15 @@ class DiscoverEndpointsExtension extends ExtensionBase {
         }
 
         // Iterate each include folder
-        includedPaths.forEach((includeEndpointPath) => {
+        includedPaths.forEach(includeEndpointPath => {
           this.configureEndpoint(includeFullPath, includeEndpointPath, config);
         });
-
       }
-
     } else {
       // Skip the auto-configuration
       defaultConfiguration.auto_config = false;
       this.info(`     routes.json not found in [${endpoint}].. skipping for configuration step`);
     }
-
   }
 
   /**
@@ -176,16 +199,16 @@ class DiscoverEndpointsExtension extends ExtensionBase {
     const fullPath = `${__dirname}/../../models/extensions`;
     const extensionsPaths = this.getFiles(fullPath);
     const extensionToAttach = [];
-    this.info('');
+    this.info("");
 
     // Register Model Extensions!
-    for (var index in extensionsPaths) {
+    for (const index in extensionsPaths) {
       const name = extensionsPaths[index];
       try {
         // Get the extension class
         let ExtensionClass = require(path.join(fullPath, name));
-        if (typeof ExtensionClass !== 'function' && typeof ExtensionClass.extension == 'function') {
-          // Extended Object 
+        if (typeof ExtensionClass !== "function" && typeof ExtensionClass.extension == "function") {
+          // Extended Object
           ExtensionClass = ExtensionClass.extension;
         }
 
@@ -193,23 +216,22 @@ class DiscoverEndpointsExtension extends ExtensionBase {
         const extension = new ExtensionClass(this.app, this.settings);
 
         // Extend by Name
-        const extensionName = name.replace(/.js/, '');
+        const extensionName = name.replace(/.js/, "");
 
         this.info(`  - Model Extension [${extensionName}] loaded`);
         extensionToAttach.push({
           name: extensionName,
           fnc: extension.execute
         });
-
       } catch (ex) {
-        this.debug(`Failed to load model extension ${name}.`)
+        this.debug(`Failed to load model extension ${name}.`);
         throw ex;
       }
     }
 
     // At last!, load models and add all extension!
-    this.info(' ');
-    this.discoveredModels.forEach((model) => {
+    this.info(" ");
+    this.discoveredModels.forEach(model => {
       this.configureModel(model, extensionToAttach);
     });
 
@@ -226,10 +248,10 @@ class DiscoverEndpointsExtension extends ExtensionBase {
     // First: Configure
     try {
       const SchemaClass = require(`${model.path}`);
-      extensionsToAttach.forEach((extensionToAttach) => {
+      extensionsToAttach.forEach(extensionToAttach => {
         // Not arrow to inject "this" instance
-        SchemaClass.method(extensionToAttach.name, function (cfg) {
-          cfg = (cfg || {});
+        SchemaClass.method(extensionToAttach.name, function(cfg) {
+          cfg = cfg || {};
           return extensionToAttach.fnc(cfg, this);
         });
       });
@@ -240,13 +262,11 @@ class DiscoverEndpointsExtension extends ExtensionBase {
       this.app.models[model.name] = mongooseModel;
 
       this.info(`  - Model [${model.name}] loaded in Application models`);
-
     } catch (ex) {
-      this.debug(`Failed to load model ${model.name} from ${model.path}.`)
+      this.debug(`Failed to load model ${model.name} from ${model.path}.`);
       throw ex;
     }
-  };
-
+  }
 
   /**
    * Discover endpoints and his models and register into the controllers restify registry
@@ -255,11 +275,10 @@ class DiscoverEndpointsExtension extends ExtensionBase {
    */
   execute(config) {
     this.discoverEndpoints();
-    this.info('');
+    this.info("");
     this.discoverModels();
-    this.info('');
-  };
-
+    this.info("");
+  }
 }
 
 module.exports = DiscoverEndpointsExtension;

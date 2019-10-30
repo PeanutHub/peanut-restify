@@ -1,4 +1,4 @@
-const ExtensionBase = require('./../ExtensionBase');
+const ExtensionBase = require("./../ExtensionBase");
 
 /**
  * Add health status for APIs
@@ -6,7 +6,6 @@ const ExtensionBase = require('./../ExtensionBase');
  * @extends {ExtensionBase}
  */
 class addPingEndpointExtension extends ExtensionBase {
-
   /**
    * Add /ping endpoint with a valid "pong" response
    * @param {any} config Configuration Settings
@@ -14,17 +13,21 @@ class addPingEndpointExtension extends ExtensionBase {
    */
   execute() {
     const config = {
-      route: '/ping',
-      method: 'GET'
+      route: "/ping",
+      method: "GET",
+      public: true
     };
 
-    this.app.addToWhiteList(config);
-    this.server.get({
-      path: config.route,
-    }, (req, res, next) => {
-      res.send(200, 'pong');
-    });
-  };
+    this.app.addRouteOptions(config);
+    this.server.get(
+      {
+        path: config.route
+      },
+      (req, res, next) => {
+        res.send(200, "pong");
+      }
+    );
+  }
 }
 
 module.exports = addPingEndpointExtension;

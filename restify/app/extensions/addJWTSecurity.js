@@ -1,8 +1,8 @@
 const ExtensionBase = require("./../ExtensionBase");
-const restify = require("restify");
 const jwt = require("peanut-restify-jwt");
 const fileSystem = require("fs");
 const lodash = require("lodash");
+const getRouteOptions = require("./getRouteOptions");
 
 /**
  * Add JWT Security to restify
@@ -37,12 +37,14 @@ class AddJWTSecurityExtension extends ExtensionBase {
     }
 
     jwtConfig.secret = fileSystem.readFileSync(jwtConfig.publicKeyPath);
+    jwtConfig.getRouteOptions = this.app.getRouteOptions;
 
     this.server.use(
       jwt(jwtConfig).unless({
         custom: req => {
-          const fullPath = req.route.method + " " + req.route.path;
-          const inWhiteList = this.app.getWhiteList().indexOf(fullPath) >= 0;
+          const fullPathId = `${req.route.method.toUpperCase()} ${req.route.path}`;
+          const opts = this.app.getRouteOptions(fullPathId);
+          const inWhiteList = opts && opts.public === true;
 
           return inWhiteList;
         },
