@@ -250,11 +250,11 @@ class App {
   getSettings(config) {}
 
   /**
-   * Get Whitelist Routes
+   * Get Route Options via Route Path (method + path)
    * @param {any} config Configuration Settings
-   * @memberof GetWhiteListExtension
+   * @memberof GetRouteOptionsExtension
    */
-  getWhiteList(config) {}
+  getRouteOptions(routePath) {}
 
   /**
    * Add a static file route
