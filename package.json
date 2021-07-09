@@ -27,7 +27,7 @@
     "async-exit-hook": "^2.0.1",
     "ioredis": "^3.2.1",
     "lodash": "^4.17.15",
-    "mongoose": "5.4.14",
+    "mongoose": "5.13.2",
     "peanut-restify-jwt": "0.5.7",
     "restify": "^8.4.0",
     "restify-cors-middleware": "^1.1.1",
