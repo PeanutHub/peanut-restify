@@ -1,6 +1,6 @@
 {
   "name": "peanut-restify",
-  "version": "2.2.12",
+  "version": "2.2.13",
   "description": "Restify boosted By Loopback 3 Style",
   "main": "index.js",
   "scripts": {
@@ -26,13 +26,13 @@
   "dependencies": {
     "async-exit-hook": "^2.0.1",
     "ioredis": "^3.2.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mongoose": "5.13.2",
     "peanut-restify-jwt": "0.5.7",
     "restify": "^8.4.0",
     "restify-cors-middleware": "^1.1.1",
-    "restify-router": "^0.4.2",
     "restify-errors": "5.0.0",
+    "restify-router": "^0.4.2",
     "winston": "3.2.1"
   },
   "devDependencies": {}
